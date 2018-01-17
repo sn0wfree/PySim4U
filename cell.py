@@ -184,10 +184,15 @@ class GridCell():
 
             #sharelist = []
             #totalshare = 0
+            # get number of neighbours and add 1 for itself
             lenn = len(neighbours) + 1
+            # mapping neighbours:
             for neighbour in neighbours:
-                neighbourcell = self.gridcell[neighbour[0]][neighbour[1]]
-                if neighbourcell.concentration > cell.concentration:
+                neighbourcell = self.gridcell[neighbour[0]][
+                    neighbour[1]]  # get neighbours cell
+                if neighbourcell.concentration > cell.concentration:  # compare two cells
+                    # get the different between two cell and spilt it into lenn
+                    # shares; get int number
                     tempint = int(neighbourcell.concentration -
                                   cell.concentration) / lenn
                     if tempint >= 1:
@@ -195,7 +200,7 @@ class GridCell():
 
                     else:
                         tempint = 1
-                    neighbourcell.concentration -= tempint
+                    neighbourcell.concentration -= tempint  # change
                     cell.concentration += tempint
 
                 elif neighbourcell.concentration < cell.concentration:
