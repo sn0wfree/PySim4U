@@ -160,20 +160,29 @@ class GridCell():
 
             sharelist = []
             totalshare = 0
-            lenn = len(neighbours)
+            lenn = len(neighbours) + 1
             for neighbour in neighbours:
                 neighbourcell = self.gridcell[neighbour[0]][neighbour[1]]
                 if neighbourcell.concentration > cell.concentration:
+                    tempint = int(neighbourcell.concentration -
+                                  cell.concentration) / lenn
+                    if tempint >= 1:
+                        pass
 
-                    neighbourcell.concentration -= int(
-                        neighbourcell.concentration - cell.concentration) / lenn
-                    cell.concentration += int(neighbourcell.concentration -
-                                              cell.concentration) / lenn
+                    else:
+                        tempint = 1
+                    neighbourcell.concentration -= tempint
+                    cell.concentration += tempint
+
                 elif neighbourcell.concentration < cell.concentration:
-                    neighbourcell.concentration += int(
+                    tempint = int(
                         cell.concentration - neighbourcell.concentration) / lenn
-                    cell.concentration -= int(cell.concentration -
-                                              neighbourcell.concentration) / lenn
+                    if tempint >= 1:
+                        pass
+                    else:
+                        tempint = 1
+                    neighbourcell.concentration += tempint
+                    cell.concentration -= tempint
 
             """
                 else:
@@ -208,14 +217,16 @@ class GridCell():
 
 if __name__ == '__main__':
     gc.enable()
-    row = 5
-    column = 5
+    row = 10
+    column = 10
     diffusionspeed = 1
+    initvalue = row * column + 1
+    initlocation = (0, 0)
     gcs = GridCell(row, column, diffusionspeed=diffusionspeed)
-    gcs.setconcentration([((0, 0), 2601)])
+    gcs.setconcentration([(initlocation, initvalue)])
     last = []
     lastcount = 0
-
+    c = 0
     # print gc.concentration(gc.diffusionstatuslist())
     while gcs.diffusionstatuslist() != set([]):
         # print gcs.diffusionstatuslist()
@@ -228,6 +239,6 @@ if __name__ == '__main__':
         last = gcs.status()
         gc.collect()
 
-        time.sleep(.05)
+        time.sleep(.5)
 
     # print gc.gridcell[0][2].getneighbour()
