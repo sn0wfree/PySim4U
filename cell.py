@@ -8,33 +8,32 @@ import time
 import numpy as np
 
 
-class cel():
-
-    def __init__(self, location, diffusion, concentration):
-        inits = collections.namedtuple(
-            'Cell', ['location', 'diffusion', 'concentration'])
-        self = inits(location, diffusion, concentration)
-
-
 class Cell():
-    # basic cell
-    # provide location,concentration,status
+    # Basic Cell class, contain the base information including:
+
+    # location,
+    # concentration,
+    # status:
+    #       diffusion and change
 
     def __init__(self, row, column, maxrow, maxcolumn, concentration=0):
         self.concentration = concentration
         self.location = (row, column)
+
+        self.diffusion = False
+        self.change = 0  # depredated parameter
+        self.status = 'Dead'  # alive;equilibrium
         self.maxrow = maxrow
         self.maxcolumn = maxcolumn
-        self.diffusion = False
-        self.change = 0
-        # self.status = 'Dead'  # alive;equilibrium
         self.__concentrationcheck()
 
     def __run__(self):
+        # depredated function
         self.concentration = self.concentration + self.change
         self.change = 0
 
     def __concentrationcheck(self):
+        # self status check ,useless
         if self.concentration < 0:
             self.concentration = 0
             self.status = 'Dead'
@@ -47,7 +46,9 @@ class Cell():
             # concentration status changed
 
     def getneighbour(self):
-        # obtain the neighbour
+        # this function is for obtain the neighbors around this cell
+        # return the list of the location of neighbors
+
         row = self.location[0]
         column = self.location[1]
         if row - 1 < 0:
@@ -75,16 +76,27 @@ class Cell():
 
 
 class GridCell():
+    # this is gridcell function :main function to hold all cells in one dict
 
     def __init__(self, rownumber, columnnumber, diffusionspeed=1, diffusionsize=0.5):
-        self.diffusionspeed = diffusionspeed
-        self.diffusionsize = diffusionsize
-        self.rownumber = rownumber
-        self.columnnumber = columnnumber
-        self.maxrow = self.rownumber - 1
-        self.maxcolumn = self.columnnumber - 1
+        # initial gridcell
+        #
+        self.diffusionspeed = diffusionspeed  # diffusion speed; depredated parameters
+        self.diffusionsize = diffusionsize  # diffusion size; depredated parameters
+        self.rownumber = rownumber  # define the number of row
+        self.columnnumber = columnnumber  # define the number of column
 
+        self.maxrow = self.rownumber - 1
+        # define the max of rownumber in python math system:the first number in
+        # python is zero
+
+        self.maxcolumn = self.columnnumber - 1
+        # define the max of columnnumber in python math system:the first number
+        # in python is zero
+
+        # initial contain for collecting cells
         self.gridcell = collections.OrderedDict()
+        # now mapping cell and put them into gridcell
         for row in xrange(self.rownumber):
             rowdict = collections.OrderedDict()
             for column in xrange(self.columnnumber):
@@ -92,7 +104,9 @@ class GridCell():
                     row, column, self.maxrow, self.maxcolumn)
             self.gridcell[row] = rowdict
 
+    # setup function for cell concentration
     def setconcentration(self, lc, printout=True):
+        # this function need input with list type
         if isinstance(lc, list):
             for l, c in lc:
                 self._setconcentration(l, c, printout=False)
@@ -101,23 +115,29 @@ class GridCell():
 
         if printout:
             self.cellprint()
-        self.detect_equilibrium_all()
+        self.detect_equilibrium_all()  # equilibrium check function for all
 
     def _setconcentration(self, location, concentration, printout=True):
+        # setup subfunction for cell concentration
+        # need input location;concentration
         row = location[0]
         column = location[1]
-        # print self.gridcell[row][column]
+
         self.gridcell[row][column].concentration = concentration
         if printout:
             self.cellprint()
+
+        # equilibrium check function for single cell
         self._detect_equilibrium(self.gridcell[row][column])
 
-    def detect_equilibrium_all(self):
+    def detect_equilibrium_all(self):  # equilibrium check function for all
+        # mapping all
         for k, v in self.gridcell.items():
             for k2, v2 in v.items():
                 self._detect_equilibrium(v2)
 
     def _detect_equilibrium(self, cell):
+        # equilibrium check function for single function
         neighbours = cell.getneighbour()
         cellstatus = 0
         for l in neighbours:  # location:(1,2)
@@ -129,6 +149,7 @@ class GridCell():
             cell.diffusion = False
 
     def diffusionstatuslist(self):
+        # this function is for collecting diffusion status;return set
         c = []
 
         for k, v in self.gridcell.items():
@@ -138,28 +159,31 @@ class GridCell():
                     c.append((k, k2))
         return set(c)
 
-    def _go_(self):
+    def _go_(self):  # diffusion function.
+
         for k, v in self.gridcell.items():
             for k2, v2 in v.items():
                 self.__go__(v2)
-        for k, v in self.gridcell.items():
+        # depredated function should be used with cell.__run__ function
+        """for k, v in self.gridcell.items():
             for k2, v2 in v.items():
-                v2.__run__()
+                v2.__run__()"""
 
-    def __go__(self, cell):
+    def __go__(self, cell):  # depredated function. should be used with cell.__run__ function
 
         if cell.diffusion:
-            neighbours = cell.getneighbour()
+            neighbours = cell.getneighbour()  # getneighbou
             # for n in neighbours:
-            s = sum(self.concentration(neighbours)) + cell.concentration
+            # this part is to collection diffusionspeed but useless here
+            """s = sum(self.concentration(neighbours)) + cell.concentration
             m = s / (1 + len(neighbours))
             if m >= cell.concentration:
                 splitenumber = 0 * self.diffusionspeed
             else:
-                splitenumber = (cell.concentration - m) * self.diffusionspeed
+                splitenumber = (cell.concentration - m) * self.diffusionspeed"""
 
-            sharelist = []
-            totalshare = 0
+            #sharelist = []
+            #totalshare = 0
             lenn = len(neighbours) + 1
             for neighbour in neighbours:
                 neighbourcell = self.gridcell[neighbour[0]][neighbour[1]]
@@ -201,16 +225,16 @@ class GridCell():
 
 # single cell
 
-    def concentration(self, locationlist):
+    def concentration(self, locationlist):  # obtain concentrationlist base on loaction
         return [self.gridcell[location[0]][location[1]
                                            ].concentration for location in locationlist]
 
-    def status(self):
+    def status(self):  # obtain all concentration
         c = [[v2.concentration for k2, v2 in v.items()]
              for k, v in self.gridcell.items()]
         return c
 
-    def cellprint(self):
+    def cellprint(self):  # print out
         c = self.status()
         pprint.pprint(c, indent=1, width=10 * self.columnnumber, depth=2)
 
@@ -228,7 +252,7 @@ if __name__ == '__main__':
     lastcount = 0
     c = 0
     # print gc.concentration(gc.diffusionstatuslist())
-    while gcs.diffusionstatuslist() != set([]):
+    while gcs.diffusionstatuslist() != set([]):  # while loop
         # print gcs.diffusionstatuslist()
         gcs._go_()
         if last == gcs.status():
