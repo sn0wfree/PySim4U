@@ -56,8 +56,6 @@ class GridCell():
     def __init__(self, rownumber, columnnumber, diffusionspeed=0.5, diffusionsize=0.5):
         self.diffusionspeed = diffusionspeed
         self.diffusionsize = diffusionsize
-        self.maxrow = rownumber - 1
-        self.maxcolumn = columnnumber - 1
         self.rownumber = rownumber
         self.columnnumber = columnnumber
         self.gridcell = collections.OrderedDict()
@@ -86,7 +84,6 @@ class GridCell():
         self.gridcell[row][column].concentration = concentration
         if printout:
             self.cellprint()
-        self.detect_equilibrium_all()
 
     def detect_equilibrium_all(self):
         for k, v in self.gridcell.items():
